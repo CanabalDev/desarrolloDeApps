@@ -1,5 +1,6 @@
 package com.gestionfincas.aplicacion.usuario;
 
+import com.gestionfincas.aplicacion.finca.RepositorioFincas;
 import com.gestionfincas.dominio.Usuario;
 
 import java.util.List;
@@ -9,12 +10,15 @@ import java.util.UUID;
 public final class GestionUsuariosServicio implements GestionUsuarios {
 
     private final RepositorioUsuarios repositorioUsuarios;
+    private final RepositorioFincas repositorioFincas;
     private final CodificadorContrasena codificadorContrasena;
 
     public GestionUsuariosServicio(
             RepositorioUsuarios repositorioUsuarios,
+            RepositorioFincas repositorioFincas,
             CodificadorContrasena codificadorContrasena) {
         this.repositorioUsuarios = repositorioUsuarios;
+        this.repositorioFincas = repositorioFincas;
         this.codificadorContrasena = codificadorContrasena;
     }
 
@@ -71,6 +75,10 @@ public final class GestionUsuariosServicio implements GestionUsuarios {
     @Override
     public void eliminar(String usuarioId) {
         buscarUsuario(usuarioId);
+        if (repositorioFincas.existePropietario(usuarioId)) {
+            throw new IllegalStateException("No se puede eliminar un usuario que es propietario de una finca.");
+        }
+        repositorioFincas.quitarCapataz(usuarioId);
         repositorioUsuarios.eliminar(usuarioId);
     }
 

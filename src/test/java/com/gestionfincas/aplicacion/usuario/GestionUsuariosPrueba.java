@@ -1,5 +1,6 @@
 package com.gestionfincas.aplicacion.usuario;
 
+import com.gestionfincas.aplicacion.finca.RepositorioFincas;
 import com.gestionfincas.dominio.Usuario;
 import com.gestionfincas.infraestructura.seguridad.AdaptadorCodificadorContrasena;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,13 +28,16 @@ class GestionUsuariosPrueba {
     private RepositorioUsuarios repositorioUsuarios;
 
     @Mock
+    private RepositorioFincas repositorioFincas;
+
+    @Mock
     private CodificadorContrasena codificadorContrasena;
 
     private GestionUsuariosServicio gestionUsuarios;
 
     @BeforeEach
     void preparar() {
-        gestionUsuarios = new GestionUsuariosServicio(repositorioUsuarios, codificadorContrasena);
+        gestionUsuarios = new GestionUsuariosServicio(repositorioUsuarios, repositorioFincas, codificadorContrasena);
     }
 
     @Test
@@ -85,6 +89,29 @@ class GestionUsuariosPrueba {
 
         assertTrue(gestionUsuarios.iniciarSesion("ANA", "clave"));
         assertFalse(gestionUsuarios.iniciarSesion("ana", " "));
+    }
+
+    @Test
+    void impideEliminarUsuarioQueEsPropietario() {
+        when(repositorioUsuarios.buscarPorId("usuario-1"))
+                .thenReturn(Optional.of(new Usuario("usuario-1", "ana", "hash", "ana@ejemplo.com", "Ana")));
+        when(repositorioFincas.existePropietario("usuario-1")).thenReturn(true);
+
+        assertThrows(IllegalStateException.class, () -> gestionUsuarios.eliminar("usuario-1"));
+
+        verify(repositorioFincas, never()).quitarCapataz("usuario-1");
+        verify(repositorioUsuarios, never()).eliminar("usuario-1");
+    }
+
+    @Test
+    void alEliminarUsuarioDesvinculaPrimeroSuAsignacionComoCapataz() {
+        when(repositorioUsuarios.buscarPorId("usuario-1"))
+                .thenReturn(Optional.of(new Usuario("usuario-1", "ana", "hash", "ana@ejemplo.com", "Ana")));
+
+        gestionUsuarios.eliminar("usuario-1");
+
+        verify(repositorioFincas).quitarCapataz("usuario-1");
+        verify(repositorioUsuarios).eliminar("usuario-1");
     }
 
     @Test

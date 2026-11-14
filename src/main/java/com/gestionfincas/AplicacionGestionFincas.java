@@ -1,5 +1,8 @@
 package com.gestionfincas;
 
+import com.gestionfincas.aplicacion.finca.GestionFincas;
+import com.gestionfincas.aplicacion.finca.GestionFincasServicio;
+import com.gestionfincas.aplicacion.finca.RepositorioFincas;
 import com.gestionfincas.aplicacion.usuario.CodificadorContrasena;
 import com.gestionfincas.aplicacion.usuario.GestionUsuarios;
 import com.gestionfincas.aplicacion.usuario.GestionUsuariosServicio;
@@ -18,7 +21,13 @@ public class AplicacionGestionFincas {
     @Bean
     public GestionUsuarios gestionUsuarios(
             RepositorioUsuarios repositorioUsuarios,
+            RepositorioFincas repositorioFincas,
             CodificadorContrasena codificadorContrasena) {
-        return new GestionUsuariosServicio(repositorioUsuarios, codificadorContrasena);
+        return new GestionUsuariosServicio(repositorioUsuarios, repositorioFincas, codificadorContrasena);
+    }
+
+    @Bean
+    public GestionFincas gestionFincas(RepositorioFincas repositorioFincas, RepositorioUsuarios repositorioUsuarios) {
+        return new GestionFincasServicio(repositorioFincas, repositorioUsuarios);
     }
 }
