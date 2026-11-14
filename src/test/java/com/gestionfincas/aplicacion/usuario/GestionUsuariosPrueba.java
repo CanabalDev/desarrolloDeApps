@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -89,6 +90,14 @@ class GestionUsuariosPrueba {
 
         assertTrue(gestionUsuarios.iniciarSesion("ANA", "clave"));
         assertFalse(gestionUsuarios.iniciarSesion("ana", " "));
+    }
+
+    @Test
+    void filtraUsuariosPorNombreUsuarioCorreoYNombre() {
+        Usuario usuario = new Usuario("usuario-1", "ana", "hash", "ana@ejemplo.com", "Ana Pérez");
+        when(repositorioUsuarios.listar()).thenReturn(List.of(usuario));
+
+        assertEquals(List.of(usuario), gestionUsuarios.filtrar("AN", "ejemplo", "pÉREZ"));
     }
 
     @Test

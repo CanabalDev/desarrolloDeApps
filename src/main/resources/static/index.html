@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>API de gestión de fincas</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --verde: #176b45;
+            --verde-claro: #e8f5ed;
+            --fondo: #f4f7f5;
+            --texto: #1c2922;
+            --suave: #617168;
+            --borde: #dce6df;
+            --codigo: #17251d;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--fondo);
+            color: var(--texto);
+            font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+        }
+
+        header {
+            padding: 48px 24px;
+            background: linear-gradient(135deg, #145b3b, #258354);
+            color: white;
+        }
+
+        .contenedor { width: min(1040px, 100% - 40px); margin: 0 auto; }
+
+        .estado {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border: 1px solid #ffffff55;
+            border-radius: 999px;
+            background: #ffffff16;
+            font-size: 14px;
+            font-weight: 650;
+        }
+
+        .punto { width: 9px; height: 9px; border-radius: 50%; background: #85f0ae; }
+        h1 { margin: 18px 0 8px; font-size: clamp(30px, 5vw, 46px); line-height: 1.1; }
+        header p { max-width: 680px; margin: 0; color: #e3f4e9; }
+
+        main { padding: 28px 0 56px; }
+        section { margin: 22px 0; }
+        h2 { margin: 0 0 12px; font-size: 22px; }
+        h3 { margin: 0 0 10px; font-size: 17px; }
+        p { margin: 8px 0; }
+        .suave { color: var(--suave); }
+
+        .tarjeta {
+            padding: 20px;
+            border: 1px solid var(--borde);
+            border-radius: 14px;
+            background: white;
+            box-shadow: 0 4px 16px #183b2410;
+        }
+
+        .direccion {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            background: #103c28;
+            color: white;
+            font: 600 15px/1.4 ui-monospace, SFMono-Regular, Consolas, monospace;
+        }
+
+        .tabla-contenedor { overflow-x: auto; border: 1px solid var(--borde); border-radius: 12px; background: white; }
+        table { width: 100%; border-collapse: collapse; min-width: 650px; }
+        th, td { padding: 12px 14px; border-bottom: 1px solid var(--borde); text-align: left; vertical-align: top; }
+        th { background: #f7faf8; color: var(--suave); font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
+        tr:last-child td { border-bottom: 0; }
+
+        code, pre { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+        code.ruta { color: #174e35; font-size: 14px; font-weight: 650; white-space: nowrap; }
+        .metodo { display: inline-block; min-width: 54px; padding: 3px 7px; border-radius: 6px; background: var(--verde-claro); color: var(--verde); font-size: 12px; font-weight: 750; text-align: center; }
+        pre {
+            overflow-x: auto;
+            margin: 10px 0 0;
+            padding: 16px;
+            border-radius: 10px;
+            background: var(--codigo);
+            color: #e6f4e9;
+            font-size: 13px;
+            line-height: 1.55;
+        }
+
+        .rejilla { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+        .nota { padding: 14px 16px; border-left: 4px solid #69a982; border-radius: 6px; background: var(--verde-claro); }
+        footer { padding: 20px 0; border-top: 1px solid var(--borde); color: var(--suave); font-size: 14px; }
+
+        @media (max-width: 600px) {
+            header { padding: 36px 0; }
+            .contenedor { width: min(100% - 28px, 1040px); }
+            .tarjeta { padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="contenedor">
+        <span class="estado"><span class="punto"></span>API en ejecución</span>
+        <h1>Gestión de usuarios y fincas</h1>
+        <p>El backend está activo. Usa las rutas siguientes para consultar y administrar la información desde Kodular u otra aplicación.</p>
+        <div class="direccion" id="direccionBase"></div>
+    </div>
+</header>
+
+<main class="contenedor">
+    <section class="tarjeta">
+        <h2>Cómo enviar las peticiones</h2>
+        <p>Para las solicitudes <strong>POST</strong> y <strong>PUT</strong>, envía un cuerpo JSON y agrega el encabezado <code>Content-Type: application/json</code>. Las rutas de consulta y borrado no requieren cuerpo.</p>
+        <p>Los errores se responden como JSON con un mensaje, por ejemplo: <code>{"mensaje":"No existe el usuario solicitado."}</code>.</p>
+    </section>
+
+    <section>
+        <h2>Usuarios</h2>
+        <div class="tabla-contenedor">
+            <table>
+                <thead><tr><th>Método</th><th>Ruta</th><th>Uso</th></tr></thead>
+                <tbody>
+                <tr><td><span class="metodo">GET</span></td><td><code class="ruta">/api/usuarios</code></td><td>Lista usuarios. Filtros opcionales: <code>nombreUsuario</code>, <code>correo</code>, <code>nombre</code>.</td></tr>
+                <tr><td><span class="metodo">POST</span></td><td><code class="ruta">/api/usuarios</code></td><td>Crea un usuario.</td></tr>
+                <tr><td><span class="metodo">GET</span></td><td><code class="ruta">/api/usuario/{usuarioId}</code></td><td>Consulta un usuario.</td></tr>
+                <tr><td><span class="metodo">PUT</span></td><td><code class="ruta">/api/usuario/{usuarioId}</code></td><td>Actualiza un usuario.</td></tr>
+                <tr><td><span class="metodo">DELETE</span></td><td><code class="ruta">/api/usuario/{usuarioId}</code></td><td>Elimina un usuario si no es propietario de una finca.</td></tr>
+                <tr><td><span class="metodo">POST</span></td><td><code class="ruta">/api/usuarios/iniciar-sesion</code></td><td>Comprueba el nombre de usuario y la contraseña.</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="rejilla" style="margin-top:16px">
+            <div class="tarjeta">
+                <h3>Crear o actualizar usuario</h3>
+                <pre>{
+  "nombreUsuario": "ana",
+  "contrasena": "mi-clave",
+  "correo": "ana@ejemplo.com",
+  "nombre": "Ana Pérez"
+}</pre>
+            </div>
+            <div class="tarjeta">
+                <h3>Iniciar sesión</h3>
+                <pre>{
+  "nombreUsuario": "ana",
+  "contrasena": "mi-clave"
+}</pre>
+                <p class="suave">Responde <code>{"autenticado":true}</code> o, si no coinciden, estado HTTP 401.</p>
+            </div>
+        </div>
+        <p class="suave">Ejemplo de filtro: <code>GET /api/usuarios?nombreUsuario=ana&amp;correo=ejemplo.com</code></p>
+    </section>
+
+    <section>
+        <h2>Fincas</h2>
+        <div class="tabla-contenedor">
+            <table>
+                <thead><tr><th>Método</th><th>Ruta</th><th>Uso</th></tr></thead>
+                <tbody>
+                <tr><td><span class="metodo">GET</span></td><td><code class="ruta">/api/fincas</code></td><td>Lista fincas. Filtros opcionales: <code>nombreFinca</code>, <code>propietarioId</code>, <code>pais</code>, <code>departamento</code>, <code>ciudad</code>.</td></tr>
+                <tr><td><span class="metodo">POST</span></td><td><code class="ruta">/api/fincas</code></td><td>Crea una finca.</td></tr>
+                <tr><td><span class="metodo">GET</span></td><td><code class="ruta">/api/finca/{fincaId}</code></td><td>Consulta una finca.</td></tr>
+                <tr><td><span class="metodo">PUT</span></td><td><code class="ruta">/api/finca/{fincaId}</code></td><td>Actualiza una finca.</td></tr>
+                <tr><td><span class="metodo">DELETE</span></td><td><code class="ruta">/api/finca/{fincaId}</code></td><td>Elimina una finca.</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="tarjeta" style="margin-top:16px">
+            <h3>Crear o actualizar finca</h3>
+            <p>Para asignar propietario y capataz, envía sus identificadores. El capataz es opcional.</p>
+            <pre>{
+  "nombreFinca": "Finca Verde",
+  "areaHa": 1.23,
+  "areaM2": 12345.00,
+  "propietarioId": "id-del-usuario",
+  "capatazId": null,
+  "pais": "Colombia",
+  "departamento": "Antioquia",
+  "ciudad": "Medellín",
+  "produceLeche": true,
+  "produceCereales": false,
+  "produceFrutas": true,
+  "produceVerduras": false
+}</pre>
+        </div>
+    </section>
+
+    <section class="nota">
+        <strong>Respuestas habituales:</strong> creación HTTP 201, consulta/actualización HTTP 200, borrado HTTP 204, datos inválidos HTTP 400, elemento inexistente HTTP 404 y conflictos HTTP 409. Actualmente el inicio de sesión solo valida las credenciales; no genera token y las rutas CRUD no requieren iniciar sesión.
+    </section>
+
+    <footer>API de gestión de usuarios y fincas · Spring Boot</footer>
+</main>
+<script>
+    document.getElementById("direccionBase").textContent = window.location.origin;
+</script>
+</body>
+</html>

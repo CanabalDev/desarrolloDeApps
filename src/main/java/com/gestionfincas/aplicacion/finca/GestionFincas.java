@@ -12,6 +12,8 @@ public interface GestionFincas {
 
     List<Finca> listar();
 
+    List<Finca> filtrar(String nombreFinca, String propietarioId, String pais, String departamento, String ciudad);
+
     Finca actualizar(String fincaId, DatosFinca datos);
 
     void eliminar(String fincaId);

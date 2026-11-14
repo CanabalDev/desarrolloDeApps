@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -63,6 +64,17 @@ class GestionFincasPrueba {
 
         assertThrows(java.util.NoSuchElementException.class,
                 () -> gestionFincas.crear(datosFinca("usuario-ausente", null)));
+    }
+
+    @Test
+    void filtraFincasPorNombrePropietarioYUbicacion() {
+        Usuario propietario = crearUsuario("usuario-1");
+        Finca finca = new Finca(
+                "finca-1", "Finca Verde", new BigDecimal("1.23"), new BigDecimal("12345.00"), propietario,
+                null, "Colombia", "Antioquia", "Medellín", true, false, true, false);
+        when(repositorioFincas.listar()).thenReturn(List.of(finca));
+
+        assertEquals(List.of(finca), gestionFincas.filtrar("verde", "usuario-1", "colom", "antioquia", null));
     }
 
     private DatosFinca datosFinca(String propietarioId, String capatazId) {

@@ -5,6 +5,7 @@ import com.gestionfincas.dominio.Finca;
 import com.gestionfincas.dominio.Usuario;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -31,6 +32,23 @@ public final class GestionFincasServicio implements GestionFincas {
     @Override
     public List<Finca> listar() {
         return repositorioFincas.listar();
+    }
+
+    @Override
+    public List<Finca> filtrar(
+            String nombreFinca,
+            String propietarioId,
+            String pais,
+            String departamento,
+            String ciudad) {
+        return repositorioFincas.listar().stream()
+                .filter(finca -> coincide(finca.nombreFinca(), nombreFinca))
+                .filter(finca -> propietarioId == null || propietarioId.isBlank()
+                        || finca.propietario().id().equalsIgnoreCase(propietarioId.strip()))
+                .filter(finca -> coincide(finca.pais(), pais))
+                .filter(finca -> coincide(finca.departamento(), departamento))
+                .filter(finca -> coincide(finca.ciudad(), ciudad))
+                .toList();
     }
 
     @Override
@@ -87,5 +105,10 @@ public final class GestionFincasServicio implements GestionFincas {
         }
         return repositorioUsuarios.buscarPorId(usuarioId)
                 .orElseThrow(() -> new NoSuchElementException("No existe el usuario asignado como capataz."));
+    }
+
+    private boolean coincide(String valor, String filtro) {
+        return filtro == null || filtro.isBlank()
+                || (valor != null && valor.toLowerCase(Locale.ROOT).contains(filtro.strip().toLowerCase(Locale.ROOT)));
     }
 }

@@ -4,6 +4,7 @@ import com.gestionfincas.aplicacion.finca.RepositorioFincas;
 import com.gestionfincas.dominio.Usuario;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -47,6 +48,15 @@ public final class GestionUsuariosServicio implements GestionUsuarios {
     @Override
     public List<Usuario> listar() {
         return repositorioUsuarios.listar();
+    }
+
+    @Override
+    public List<Usuario> filtrar(String nombreUsuario, String correo, String nombre) {
+        return repositorioUsuarios.listar().stream()
+                .filter(usuario -> coincide(usuario.nombreUsuario(), nombreUsuario))
+                .filter(usuario -> coincide(usuario.correo(), correo))
+                .filter(usuario -> coincide(usuario.nombre(), nombre))
+                .toList();
     }
 
     @Override
@@ -118,5 +128,10 @@ public final class GestionUsuariosServicio implements GestionUsuarios {
         if (repositorioUsuarios.existeCorreo(correo, usuarioIdExcluir)) {
             throw new IllegalStateException("El correo ya está registrado.");
         }
+    }
+
+    private boolean coincide(String valor, String filtro) {
+        return filtro == null || filtro.isBlank()
+                || valor.toLowerCase(Locale.ROOT).contains(filtro.strip().toLowerCase(Locale.ROOT));
     }
 }
