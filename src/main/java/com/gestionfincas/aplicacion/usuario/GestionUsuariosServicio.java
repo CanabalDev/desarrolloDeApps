@@ -66,17 +66,25 @@ public final class GestionUsuariosServicio implements GestionUsuarios {
             String contrasena,
             String correo,
             String nombre) {
-        buscarUsuario(usuarioId);
-        validarContrasena(contrasena);
-        String nombreUsuarioNormalizado = Usuario.normalizarNombreUsuario(nombreUsuario);
-        String correoNormalizado = Usuario.normalizarCorreo(correo);
-        String nombreNormalizado = Usuario.normalizarNombre(nombre);
+        Usuario existente = buscarUsuario(usuarioId);
+        String nombreUsuarioNormalizado = nombreUsuario == null
+                ? existente.nombreUsuario()
+                : Usuario.normalizarNombreUsuario(nombreUsuario);
+        String correoNormalizado = correo == null
+                ? existente.correo()
+                : Usuario.normalizarCorreo(correo);
+        String nombreNormalizado = nombre == null
+                ? existente.nombre()
+                : Usuario.normalizarNombre(nombre);
 
         validarUnicidad(nombreUsuarioNormalizado, correoNormalizado, usuarioId);
+        String contrasenaCodificada = contrasena == null || contrasena.isBlank()
+                ? existente.contrasenaCodificada()
+                : codificadorContrasena.codificar(contrasena);
         Usuario usuario = new Usuario(
                 usuarioId,
                 nombreUsuarioNormalizado,
-                codificadorContrasena.codificar(contrasena),
+                contrasenaCodificada,
                 correoNormalizado,
                 nombreNormalizado);
         return repositorioUsuarios.guardar(usuario);

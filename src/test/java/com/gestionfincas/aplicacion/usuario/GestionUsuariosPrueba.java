@@ -83,6 +83,22 @@ class GestionUsuariosPrueba {
     }
 
     @Test
+    void conservaLosCamposOmitidosYLaContrasenaVaciaAlActualizar() {
+        Usuario existente = new Usuario("usuario-1", "ana", "hash-anterior", "ana@ejemplo.com", "Ana");
+        when(repositorioUsuarios.buscarPorId("usuario-1")).thenReturn(Optional.of(existente));
+        when(repositorioUsuarios.guardar(any(Usuario.class))).thenAnswer(invocacion -> invocacion.getArgument(0));
+
+        Usuario actualizado = gestionUsuarios.actualizar(
+                "usuario-1", null, "", "ana.nueva@ejemplo.com", null);
+
+        assertEquals("ana", actualizado.nombreUsuario());
+        assertEquals("ana.nueva@ejemplo.com", actualizado.correo());
+        assertEquals("Ana", actualizado.nombre());
+        assertEquals("hash-anterior", actualizado.contrasenaCodificada());
+        verify(codificadorContrasena, never()).codificar(any());
+    }
+
+    @Test
     void iniciaSesionConNombreDeUsuarioSinDistinguirMayusculas() {
         Usuario usuario = new Usuario("usuario-1", "ana", "hash", "ana@ejemplo.com", "Ana");
         when(repositorioUsuarios.buscarPorNombreUsuario("ana")).thenReturn(Optional.of(usuario));

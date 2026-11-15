@@ -23,6 +23,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -98,6 +99,22 @@ class ControladoresApiPrueba {
                                 """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.mensaje").exists());
+    }
+
+    @Test
+    void permiteActualizarUnCampoSinEnviarLaContrasena() throws Exception {
+        Usuario usuario = new Usuario("usuario-1", "ana", "hash-existente", "ana.nueva@ejemplo.com", "Ana Pérez");
+        when(gestionUsuarios.actualizar("usuario-1", null, "", "ana.nueva@ejemplo.com", null))
+                .thenReturn(usuario);
+
+        solicitudes.perform(put("/api/usuario/usuario-1")
+                        .contentType("application/json")
+                        .content("""
+                                {"correo":"ana.nueva@ejemplo.com","contrasena":""}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.correo").value("ana.nueva@ejemplo.com"))
+                .andExpect(jsonPath("$.contrasena").doesNotExist());
     }
 
     @Test

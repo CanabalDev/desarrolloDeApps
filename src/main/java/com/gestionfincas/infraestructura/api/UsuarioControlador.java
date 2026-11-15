@@ -61,7 +61,7 @@ public class UsuarioControlador {
     @PutMapping("/api/usuario/{usuarioId}")
     public RespuestaUsuario actualizar(
             @PathVariable("usuarioId") String usuarioId,
-            @Valid @RequestBody SolicitudUsuario solicitud) {
+            @Valid @RequestBody SolicitudActualizacionUsuario solicitud) {
         Usuario usuario = gestionUsuarios.actualizar(
                 usuarioId,
                 solicitud.nombreUsuario(),
@@ -86,6 +86,13 @@ public class UsuarioControlador {
             @NotBlank String contrasena,
             @NotBlank @Email @Size(max = 254) String correo,
             @NotBlank @Size(max = 100) String nombre) {
+    }
+
+    public record SolicitudActualizacionUsuario(
+            @Size(max = 50) String nombreUsuario,
+            @Email @Size(max = 254) String correo,
+            @Size(max = 100) String nombre,
+            String contrasena) {
     }
 
     public record SolicitudInicioSesion(
